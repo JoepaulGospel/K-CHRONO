@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>K-CHRONO | Scarcity Engine</title>
+<title>K-CHRONO | The Grid</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:italic&display=swap" rel="stylesheet">
@@ -21,38 +21,48 @@ height: 100vh;
 -webkit-font-smoothing: antialiased;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
+/* RESPONSIVE GRID */
 .dot-grid {
 display: grid;
 grid-template-columns: repeat(15, 1fr);
-gap: 12px;
+gap: 10px;
 }
 @media (min-width: 768px) {
 .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 14px; }
 }
-.dot {
-width: 7px;
-height: 7px;
-border-radius: 50%;
+/* DOT LOGIC */
+.dot-container {
+width: 24px; /* Large touch target for mobile */
+height: 24px;
+display: flex;
+align-items: center;
+justify-content: center;
 cursor: pointer;
+}
+.dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
-.dot:hover { transform: scale(1.8); }
-/* UPDATED COLOR LOGIC */
-.dot-past { background-color: var(--kb-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+.dot-past { background-color: var(--kb-red); opacity: 0.8; }
 .dot-today {
 background-color: var(--kb-blue);
 box-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
-animation: pulse-active 2s infinite;
+transform: scale(1.4);
+animation: pulse 2s infinite;
 }
 .dot-future { background-color: #1a1a1a; }
-@keyframes pulse-active {
-0%, 100% { transform: scale(1); opacity: 1; }
-50% { transform: scale(1.6); opacity: 0.6; }
+.dot-container:hover .dot { transform: scale(2); }
+@keyframes pulse {
+0%, 100% { box-shadow: 0 0 10px rgba(37, 99, 235, 0.5); }
+50% { box-shadow: 0 0 25px rgba(37, 99, 235, 1); }
 }
+/* MORPHY GLASS */
 .morphy-overlay {
 position: fixed;
 inset: 0;
-background: rgba(0,0,0,0.4);
+background: rgba(0,0,0,0.2);
 backdrop-filter: blur(40px);
 -webkit-backdrop-filter: blur(40px);
 z-index: 100;
@@ -61,117 +71,111 @@ align-items: center;
 justify-content: center;
 opacity: 0;
 pointer-events: none;
-transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .morphy-overlay.active { opacity: 1; pointer-events: auto; }
 .morphy-card {
-transform: scale(0.9) translateY(20px);
-transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+transform: scale(0.9);
+transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 }
-.morphy-overlay.active .morphy-card { transform: scale(1) translateY(0); }
+.morphy-overlay.active .morphy-card { transform: scale(1); }
 </style>
 </head>
 <body>
-<div class="w-full max-w-sm md:max-w-2xl flex flex-col items-center px-6">
-<header class="mb-16 text-center">
-<h1 id="year-display" class="text-3xl font-serif text-white tracking-[0.3em]">2026</h1>
+<div class="w-full max-w-sm md:max-w-xl flex flex-col items-center px-4">
+<header class="mb-12 text-center">
+<h1 id="year-display" class="text-3xl font-serif text-white tracking-[0.4em]">2026</h1>
 </header>
-<div id="grid" class="dot-grid mb-24"></div>
-<footer class="w-full flex flex-col items-center gap-4">
-<div class="flex gap-6 text-[11px] font-black uppercase tracking-[0.4em] text-zinc-600">
-<span id="days-left-text">---D LEFT</span>
-<span class="text-zinc-800">/</span>
-<span id="percent-text">--%</span>
+<div id="grid" class="dot-grid mb-20">
+<!-- 365 Dots Injected Here -->
 </div>
-<p class="text-[9px] font-black text-zinc-800 uppercase tracking-[0.6em] mt-2">K-CHRONO FROM KODEBLOCK</p>
+<footer class="w-full flex flex-col items-center gap-2">
+<div class="flex gap-4 text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">
+<span id="days-left">---D LEFT</span>
+<span class="text-zinc-800">/</span>
+<span id="percent-display" class="text-white font-mono tracking-tighter">0.000000%</span>
+</div>
+<p class="text-[8px] font-black text-zinc-800 uppercase tracking-[0.6em] mt-4">K-CHRONO FROM KODEBLOCK</p>
 </footer>
 </div>
+<!-- POPUP -->
 <div id="morphy-popup" class="morphy-overlay" onclick="closePopup()">
-<div class="morphy-card max-w-sm p-12 text-center">
+<div class="morphy-card max-w-xs p-10 text-center">
 <p id="quote-text" class="text-xl md:text-2xl font-serif italic text-white leading-relaxed tracking-tight"></p>
-<div id="quote-accent" class="mt-10 h-[1px] w-12 bg-red-600 mx-auto opacity-50 transition-colors"></div>
+<div id="quote-line" class="mt-8 h-[1px] w-8 mx-auto opacity-40"></div>
 </div>
 </div>
 <script>
-// UNIVERSAL GREATS BANK
 const GREATS_QUOTES = [
 "Your time is limited, so don't waste it living someone else's life. — Steve Jobs",
 "It always seems impossible until it's done. — Nelson Mandela",
 "He who is brave is free. — Seneca",
 "The best way to predict the future is to create it. — Peter Drucker",
 "Do what you can, with what you have, where you are. — Theodore Roosevelt",
-"Everything you've ever wanted is on the other side of fear. — George Addair",
 "Quality is not an act, it is a habit. — Aristotle",
-"It does not matter how slowly you go as long as you do not stop. — Confucius",
-"Life is what happens when you're busy making other plans. — John Lennon",
-"Success is not final, failure is not fatal: it is the courage to continue that counts. — Winston Churchill",
-"We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Will Durant",
 "The soul becomes dyed with the color of its thoughts. — Marcus Aurelius",
-"I find that the harder I work, the more luck I seem to have. — Thomas Jefferson",
-"Whether you think you can, or you think you can't—you're right. — Henry Ford",
-"The only limit to our realization of tomorrow will be our doubts of today. — Franklin D. Roosevelt"
+"Excellence is not an act, but a habit. — Aristotle",
+"Luck is what happens when preparation meets opportunity. — Seneca",
+"Wealth consists not in having great possessions, but in having few wants. — Epictetus"
 ];
-function getDayOfYear() {
-const now = new Date();
-const start = new Date(now.getFullYear(), 0, 0);
-const diff = now - start;
-const oneDay = 1000 * 60 * 60 * 24;
-return Math.floor(diff / oneDay);
-}
-function isLeapYear(year) {
-return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-}
-function updateKChrono() {
+function isLeap(year) { return (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0); }
+function renderGrid() {
 const now = new Date();
 const year = now.getFullYear();
-const totalDays = isLeapYear(year) ? 366 : 365;
-const today = getDayOfYear();
-const daysLeft = totalDays - today;
-const percentage = Math.floor((today / totalDays) * 100);
-document.getElementById('year-display').innerText = year;
-document.getElementById('days-left-text').innerText = `${daysLeft}D LEFT`;
-document.getElementById('percent-text').innerText = `${percentage}%`;
+const totalDays = isLeap(year) ? 366 : 365;
+const start = new Date(year, 0, 0);
+const diff = now - start;
+const todayIndex = Math.floor(diff / (1000 * 60 * 60 * 24));
 const grid = document.getElementById('grid');
 grid.innerHTML = '';
 for (let i = 1; i <= totalDays; i++) {
+const container = document.createElement('div');
+container.className = 'dot-container';
 const dot = document.createElement('div');
 dot.className = 'dot';
-if (i < today) {
-dot.classList.add('dot-past');
-} else if (i === today) {
-dot.classList.add('dot-today');
-} else {
-dot.classList.add('dot-future');
+if (i < todayIndex) dot.classList.add('dot-past');
+else if (i === todayIndex) dot.classList.add('dot-today');
+else dot.classList.add('dot-future');
+container.onclick = () => openPopup(i, todayIndex);
+container.appendChild(dot);
+grid.appendChild(container);
 }
-dot.onclick = (e) => {
-e.stopPropagation();
-openPopup(i, today);
-};
-grid.appendChild(dot);
+document.getElementById('year-display').innerText = year;
 }
+function updateTicker() {
+const now = new Date();
+const year = now.getFullYear();
+const totalDays = isLeap(year) ? 366 : 365;
+const yearStart = new Date(year, 0, 1).getTime();
+const yearEnd = new Date(year + 1, 0, 1).getTime();
+const totalMs = yearEnd - yearStart;
+const elapsedMs = now.getTime() - yearStart;
+const decimalPercent = (elapsedMs / totalMs) * 100;
+const daysLeft = totalDays - Math.floor(elapsedMs / (1000 * 60 * 60 * 24));
+document.getElementById('percent-display').innerText = decimalPercent.toFixed(6) + '%';
+document.getElementById('days-left').innerText = daysLeft + 'D LEFT';
 }
-function openPopup(dotIndex, todayIndex) {
-const overlay = document.getElementById('morphy-popup');
+function openPopup(index, today) {
+const popup = document.getElementById('morphy-popup');
 const text = document.getElementById('quote-text');
-const accent = document.getElementById('quote-accent');
-if (dotIndex < todayIndex) {
+const line = document.getElementById('quote-line');
+if (index < today) {
 text.innerText = "Nothing is behind, move forward.";
-accent.className = "mt-10 h-[1px] w-12 bg-red-600 mx-auto opacity-50";
-} else if (dotIndex === todayIndex) {
-const quoteIndex = dotIndex % GREATS_QUOTES.length;
-text.innerText = GREATS_QUOTES[quoteIndex];
-accent.className = "mt-10 h-[1px] w-12 bg-blue-600 mx-auto opacity-50";
+line.style.backgroundColor = "#ef4444";
+} else if (index === today) {
+text.innerText = GREATS_QUOTES[index % GREATS_QUOTES.length];
+line.style.backgroundColor = "#2563eb";
 } else {
 text.innerText = "Focus on the present now, the future will work itself if you put in the work.";
-accent.className = "mt-10 h-[1px] w-12 bg-zinc-800 mx-auto opacity-50";
+line.style.backgroundColor = "#333";
 }
-overlay.classList.add('active');
+popup.classList.add('active');
 }
-function closePopup() {
-document.getElementById('morphy-popup').classList.remove('active');
-}
-updateKChrono();
-setInterval(updateKChrono, 60000);
+function closePopup() { document.getElementById('morphy-popup').classList.remove('active'); }
+renderGrid();
+updateTicker();
+setInterval(updateTicker, 100); // High-frequency update for smooth decimal movement
+setInterval(renderGrid, 3600000); // Re-render dots every hour
 </script>
 </body>
 </html>
