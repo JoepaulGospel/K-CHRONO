@@ -8,7 +8,7 @@
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:italic&display=swap" rel="stylesheet">
 <style>
-:root { --kb-blue: #2563eb; }
+:root { --kb-red: #ef4444; --kb-blue: #2563eb; }
 body {
 background-color: #000000;
 color: #FFFFFF;
@@ -21,7 +21,6 @@ height: 100vh;
 -webkit-font-smoothing: antialiased;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
-/* GRID SCALING */
 .dot-grid {
 display: grid;
 grid-template-columns: repeat(15, 1fr);
@@ -30,7 +29,6 @@ gap: 12px;
 @media (min-width: 768px) {
 .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 14px; }
 }
-/* DOT STATES */
 .dot {
 width: 7px;
 height: 7px;
@@ -39,19 +37,18 @@ cursor: pointer;
 transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
 }
 .dot:hover { transform: scale(1.8); }
-.dot-past { background-color: var(--kb-blue); box-shadow: 0 0 12px rgba(37, 99, 235, 0.4); }
+/* UPDATED COLOR LOGIC */
+.dot-past { background-color: var(--kb-red); box-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
 .dot-today {
-background-color: #ffffff;
-box-shadow: 0 0 20px #ffffff;
+background-color: var(--kb-blue);
+box-shadow: 0 0 20px rgba(37, 99, 235, 0.8);
 animation: pulse-active 2s infinite;
 }
 .dot-future { background-color: #1a1a1a; }
-.dot-future:hover { background-color: #333; }
 @keyframes pulse-active {
 0%, 100% { transform: scale(1); opacity: 1; }
 50% { transform: scale(1.6); opacity: 0.6; }
 }
-/* MORPHY GLASS POPUP */
 .morphy-overlay {
 position: fixed;
 inset: 0;
@@ -76,15 +73,10 @@ transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 </head>
 <body>
 <div class="w-full max-w-sm md:max-w-2xl flex flex-col items-center px-6">
-<!-- YEAR HEADER -->
 <header class="mb-16 text-center">
 <h1 id="year-display" class="text-3xl font-serif text-white tracking-[0.3em]">2026</h1>
 </header>
-<!-- THE DOT GRID -->
-<div id="grid" class="dot-grid mb-24">
-<!-- Dynamically injected -->
-</div>
-<!-- SCARCITY FOOTER -->
+<div id="grid" class="dot-grid mb-24"></div>
 <footer class="w-full flex flex-col items-center gap-4">
 <div class="flex gap-6 text-[11px] font-black uppercase tracking-[0.4em] text-zinc-600">
 <span id="days-left-text">---D LEFT</span>
@@ -94,36 +86,30 @@ transition: all 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 <p class="text-[9px] font-black text-zinc-800 uppercase tracking-[0.6em] mt-2">K-CHRONO FROM KODEBLOCK</p>
 </footer>
 </div>
-<!-- THE MORPHY GLASS COMPONENT -->
 <div id="morphy-popup" class="morphy-overlay" onclick="closePopup()">
 <div class="morphy-card max-w-sm p-12 text-center">
 <p id="quote-text" class="text-xl md:text-2xl font-serif italic text-white leading-relaxed tracking-tight"></p>
-<div class="mt-10 h-[1px] w-12 bg-blue-600 mx-auto opacity-50"></div>
+<div id="quote-accent" class="mt-10 h-[1px] w-12 bg-red-600 mx-auto opacity-50 transition-colors"></div>
 </div>
 </div>
 <script>
-// High-Performance Directive Bank (Cycle Logic for 365 Days)
-const DIRECTIVES = [
-"Speed is the only unfair advantage.",
-"Complexity is the enemy of execution.",
-"Vibecode the impossible into reality.",
-"The world belongs to the builders.",
-"Scarcity is the ultimate motivator.",
-"Precision is the difference between an idea and a company.",
-"Code is cheap. Architecture is expensive.",
-"Move fast. Fix it in the next node.",
-"Your legacy is written in the dots you conquer.",
-"The market doesn't care about your feelings, only your output.",
-"Ship or perish.",
-"Great products are born in the storm.",
-"Distraction is the tax you pay on your goals.",
-"Architecture is the art of deciding what NOT to build.",
-"Vibe the vision, code the logic.",
-"Execution is the only form of truth.",
-"Own the infrastructure, own the future.",
-"A builder never asks for permission.",
-"The calendar is a finite resource. Treat it like one.",
-"Solve for pain, not for features."
+// UNIVERSAL GREATS BANK
+const GREATS_QUOTES = [
+"Your time is limited, so don't waste it living someone else's life. — Steve Jobs",
+"It always seems impossible until it's done. — Nelson Mandela",
+"He who is brave is free. — Seneca",
+"The best way to predict the future is to create it. — Peter Drucker",
+"Do what you can, with what you have, where you are. — Theodore Roosevelt",
+"Everything you've ever wanted is on the other side of fear. — George Addair",
+"Quality is not an act, it is a habit. — Aristotle",
+"It does not matter how slowly you go as long as you do not stop. — Confucius",
+"Life is what happens when you're busy making other plans. — John Lennon",
+"Success is not final, failure is not fatal: it is the courage to continue that counts. — Winston Churchill",
+"We are what we repeatedly do. Excellence, then, is not an act, but a habit. — Will Durant",
+"The soul becomes dyed with the color of its thoughts. — Marcus Aurelius",
+"I find that the harder I work, the more luck I seem to have. — Thomas Jefferson",
+"Whether you think you can, or you think you can't—you're right. — Henry Ford",
+"The only limit to our realization of tomorrow will be our doubts of today. — Franklin D. Roosevelt"
 ];
 function getDayOfYear() {
 const now = new Date();
@@ -142,11 +128,9 @@ const totalDays = isLeapYear(year) ? 366 : 365;
 const today = getDayOfYear();
 const daysLeft = totalDays - today;
 const percentage = Math.floor((today / totalDays) * 100);
-// Update Header & Footer
 document.getElementById('year-display').innerText = year;
 document.getElementById('days-left-text').innerText = `${daysLeft}D LEFT`;
 document.getElementById('percent-text').innerText = `${percentage}%`;
-// Render Grid
 const grid = document.getElementById('grid');
 grid.innerHTML = '';
 for (let i = 1; i <= totalDays; i++) {
@@ -169,27 +153,25 @@ grid.appendChild(dot);
 function openPopup(dotIndex, todayIndex) {
 const overlay = document.getElementById('morphy-popup');
 const text = document.getElementById('quote-text');
+const accent = document.getElementById('quote-accent');
 if (dotIndex < todayIndex) {
 text.innerText = "Nothing is behind, move forward.";
+accent.className = "mt-10 h-[1px] w-12 bg-red-600 mx-auto opacity-50";
+} else if (dotIndex === todayIndex) {
+const quoteIndex = dotIndex % GREATS_QUOTES.length;
+text.innerText = GREATS_QUOTES[quoteIndex];
+accent.className = "mt-10 h-[1px] w-12 bg-blue-600 mx-auto opacity-50";
 } else {
-// Deterministic Quote selection
-const quoteIndex = dotIndex % DIRECTIVES.length;
-text.innerText = DIRECTIVES[quoteIndex];
+text.innerText = "Focus on the present now, the future will work itself if you put in the work.";
+accent.className = "mt-10 h-[1px] w-12 bg-zinc-800 mx-auto opacity-50";
 }
 overlay.classList.add('active');
 }
 function closePopup() {
 document.getElementById('morphy-popup').classList.remove('active');
 }
-// Initialize Engine
 updateKChrono();
-// Refresh at Midnight
-setInterval(() => {
-const now = new Date();
-if (now.getHours() === 0 && now.getMinutes() === 0) {
-updateKChrono();
-}
-}, 60000);
+setInterval(updateKChrono, 60000);
 </script>
 </body>
 </html>
