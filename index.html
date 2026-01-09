@@ -4,12 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>K-CHRONO | The Infrastructure</title>
-<!-- PWA SETTINGS -->
+<!-- PWA / WIDGET CAPABILITY -->
 <link rel="manifest" href="manifest.json">
+<meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="theme-color" content="#000000">
-<link rel="apple-touch-icon" href="https://via.placeholder.com/192/000000/FFFFFF?text=KC">
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=DM+Serif+Display:italic&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
@@ -118,7 +118,7 @@ justify-content: center;
 </div>
 </div>
 <script>
-// REGISTER THE APP SERVICE
+// --- PWA REGISTRATION ---
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('sw.js');
 }
@@ -266,13 +266,13 @@ closeOverlay(); renderGarden();
 }
 function closeOverlay() { document.getElementById('immersive-overlay').classList.remove('active'); }
 function updateTicker() {
-const now = new Date(); const total = 365;
+const now = new Date();
 const start = new Date(now.getFullYear(), 0, 1).getTime(); const end = new Date(now.getFullYear() + 1, 0, 1).getTime();
 const percent = ((now.getTime() - start) / (end - start)) * 100;
 const daysLeft = 365 - Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
 document.getElementById('percent-text').innerText = percent.toFixed(6) + '%';
 document.getElementById('days-left-text').innerText = `${daysLeft}D LEFT`;
-// LIVE BADGE UPDATE: Shows days left on the app icon
+// UPDATE APP BADGE (WIDGET NUMBER)
 if (navigator.setAppBadge) {
 navigator.setAppBadge(daysLeft);
 }
