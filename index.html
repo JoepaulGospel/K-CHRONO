@@ -3,113 +3,143 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>K-CHRONO | The Sovereign</title>
+<title>K-CHRONO | The Infrastructure</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <script src="https://unpkg.com/lucide@latest"></script>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800;900&family=DM+Serif+Display:italic&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
 :root { --kb-red: #ef4444; --kb-blue: #2563eb; }
-body { background-color: #000000; color: #FFFFFF; font-family: 'Inter', sans-serif; overflow: hidden; height: 100vh; margin: 0; transition: background 0.5s ease; display: flex; flex-direction: column; align-items: center; justify-content: space-between; padding: 40px 0; }
+body {
+background-color: #000000;
+color: #FFFFFF;
+font-family: 'Inter', sans-serif;
+overflow: hidden;
+height: 100vh;
+margin: 0;
+display: flex;
+flex-direction: column;
+align-items: center;
+justify-content: space-between;
+padding: 20px 0 40px 0; /* Optimized for mobile height */
+transition: background 0.4s ease;
+}
 .font-serif { font-family: 'DM Serif Display', serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; }
-/* GRID CALIBRATION (MOBILE 12 COLUMNS FOR BREATHING ROOM) */
-.dot-grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 16px; margin-top: 10px; justify-items: center; align-items: center; }
-@media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 14px; } }
-.dot-slot { width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; position: relative; }
-.dot { width: 8px; height: 8px; border-radius: 50%; transition: all 0.3s ease; cursor: pointer; }
-/* CHRONO DOTS (FIXED VISIBILITY) */
-.dot-past { background-color: var(--kb-red) !important; box-shadow: 0 0 10px var(--kb-red); }
-.dot-today { background-color: var(--kb-blue) !important; box-shadow: 0 0 20px var(--kb-blue); animation: pulse 2s infinite; z-index: 10; }
-.dot-future { background-color: rgba(255,255,255,0.15); }
-.garden-empty { background-color: rgba(255,255,255,0.2); }
-/* HAND-DRAWN FLOWERS (BIG & VISIBLE) */
-.flower-ink { width: 26px; height: 26px; fill: none; stroke-width: 2.2; stroke-linecap: round; pointer-events: none; }
+/* THE GRID: 13 Columns is the Mobile Standard */
+.dot-grid {
+display: grid;
+grid-template-columns: repeat(13, 1fr);
+gap: 10px;
+justify-items: center;
+align-items: center;
+}
+@media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 12px; } }
+.dot {
+width: 6px;
+height: 6px;
+border-radius: 50%;
+transition: all 0.3s ease;
+cursor: pointer;
+position: relative;
+display: flex;
+align-items: center;
+justify-content: center;
+}
+/* CHRONO VISUALS */
+.dot-past { background-color: var(--kb-red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
+.dot-today { background-color: var(--kb-blue) !important; box-shadow: 0 0 15px var(--kb-blue); animation: pulse 2s infinite; z-index: 10; }
+.dot-future { background-color: #1a1a1a; }
+.garden-empty { background-color: #333333; opacity: 0.5; }
+/* HAND-DRAWN FLOWERS */
+.flower-ink { width: 22px; height: 22px; fill: none; stroke-width: 2; stroke-linecap: round; position: absolute; }
 @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.8; } }
-/* THE IMMERSIVE PAGE */
-.immersive-page { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; background: #000; }
+/* OVERLAYS */
+.immersive-page { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; }
 .immersive-page.active { opacity: 1; pointer-events: auto; }
-.paper-textarea { width: 100%; max-width: 450px; background: transparent; border: none; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 1.5rem; text-align: center; resize: none; line-height: 1.8; }
-/* THE COLOR PIE (PRIMARY COLORS) */
-.theme-pie { position: fixed; top: 100px; right: 25px; display: grid; grid-template-columns: 1fr; gap: 12px; opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 150; }
+.paper-textarea { width: 100%; max-width: 400px; background: transparent; border: none; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; text-align: center; resize: none; line-height: 1.7; color: white; }
+/* THEME PIE */
+.theme-pie { position: fixed; top: 80px; right: 20px; display: grid; grid-template-columns: 1fr; gap: 12px; opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 150; }
 .theme-pie.active { opacity: 1; pointer-events: auto; transform: translateX(-5px); }
-.theme-dot { width: 44px; height: 44px; border-radius: 50%; border: 3px solid rgba(255,255,255,0.2); cursor: pointer; box-shadow: 0 10px 20px rgba(0,0,0,0.3); }
-.glass-nav { background: rgba(255, 255, 255, 0.08); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); }
+.theme-dot { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
+.glass-nav { background: rgba(255, 255, 255, 0.05); backdrop-filter: blur(25px); border: 1px solid rgba(255,255,255,0.1); }
 .sentiment-dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
-.sentiment-dot.selected { transform: scale(1.3); border-color: white; box-shadow: 0 0 15px currentColor; }
+.sentiment-dot.selected { transform: scale(1.3); border-color: white; }
 .hide { display: none !important; }
 </style>
 </head>
 <body id="main-body">
-<!-- THEME ENGINE -->
-<button id="palette-btn" onclick="toggleThemePie()" class="fixed top-8 right-8 z-[160] p-2 opacity-40 hover:opacity-100">
-<i data-lucide="palette" id="main-palette-icon" class="w-8 h-8"></i>
+<!-- THEME PIE -->
+<button onclick="toggleThemePie()" class="fixed top-6 right-6 z-[160] p-2 opacity-30 hover:opacity-100 transition-opacity">
+<i data-lucide="palette" id="main-palette-icon" class="w-7 h-7"></i>
 </button>
 <div id="theme-pie" class="theme-pie">
 <div onclick="applyGlobalTheme('#000000')" class="theme-dot bg-black"></div>
+<div onclick="applyGlobalTheme('#1e3a8a')" class="theme-dot bg-blue-900"></div>
 <div onclick="applyGlobalTheme('#e5e7eb')" class="theme-dot bg-[#e5e7eb]"></div>
-<div onclick="applyGlobalTheme('#ef4444')" class="theme-dot bg-red-600"></div>
-<div onclick="applyGlobalTheme('#2563eb')" class="theme-dot bg-blue-600"></div>
-<div onclick="applyGlobalTheme('#16a34a')" class="theme-dot bg-green-600"></div>
-<div onclick="applyGlobalTheme('#eab308')" class="theme-dot bg-yellow-500"></div>
-<div onclick="applyGlobalTheme('#db2777')" class="theme-dot bg-pink-500"></div>
-<div onclick="applyGlobalTheme('#ffffff')" class="theme-dot bg-white"></div>
+<div onclick="applyGlobalTheme('#db2777')" class="theme-dot bg-pink-600"></div>
+<div onclick="applyGlobalTheme('#064e3b')" class="theme-dot bg-green-900"></div>
 </div>
 <!-- ONBOARDING -->
-<section id="onboarding" class="fixed inset-0 z-[300] bg-black flex items-center justify-center p-8 hide text-white">
-<div class="max-w-xs w-full space-y-12 text-center">
-<h1 class="text-4xl font-serif italic leading-tight">Who is planting these memories?</h1>
-<input id="user-name-input" type="text" placeholder="Your Name" class="w-full bg-transparent border-b-2 border-white p-2 text-center text-2xl outline-none font-bold uppercase tracking-widest">
-<button onclick="saveIdentity()" class="bg-white text-black px-16 py-5 rounded-full font-black uppercase text-[10px] tracking-[0.3em]">Open Garden</button>
+<section id="onboarding" class="fixed inset-0 z-[300] bg-black flex items-center justify-center p-8 hide text-white text-center">
+<div class="max-w-xs w-full space-y-10">
+<h1 class="text-4xl font-serif italic">Who is planting these memories?</h1>
+<input id="user-name-input" type="text" placeholder="Your Name" class="w-full bg-transparent border-b-2 border-white p-2 text-center text-xl outline-none font-bold uppercase tracking-widest">
+<button onclick="saveIdentity()" class="bg-white text-black px-12 py-4 rounded-full font-black uppercase text-[10px] tracking-widest">Enter Garden</button>
 </div>
 </section>
 <!-- HEADER -->
-<header class="w-full text-center px-6 mt-4">
-<h1 id="top-title" class="text-3xl font-serif italic tracking-tight">2026</h1>
-<p id="top-subtitle" class="text-[8px] font-black uppercase tracking-[0.6em] opacity-30 mt-3">K-CHRONO</p>
+<header class="w-full text-center px-6">
+<h1 id="top-title" class="text-3xl font-serif italic tracking-tight transition-all duration-500 text-white">2026</h1>
+<p id="top-subtitle" class="text-[8px] font-black uppercase tracking-[0.5em] opacity-30 mt-2 text-white">K-CHRONO</p>
 </header>
 <!-- GRID AREA -->
-<div class="flex-1 flex items-center justify-center w-full px-6 overflow-hidden">
+<div class="flex-1 flex items-center justify-center w-full px-5 overflow-hidden">
 <div id="chrono-view" class="w-full flex justify-center"><div id="chrono-grid" class="dot-grid"></div></div>
 <div id="garden-view" class="w-full hide flex justify-center"><div id="garden-grid" class="dot-grid"></div></div>
 </div>
 <!-- FOOTER -->
-<footer class="w-full flex flex-col items-center gap-12 pb-24">
+<footer class="w-full flex flex-col items-center gap-10 pb-20">
 <div id="chrono-stats" class="flex flex-col items-center gap-2">
-<div class="flex gap-6 text-[10px] font-black uppercase tracking-[0.3em] opacity-60 italic text-white">
+<div class="flex gap-4 text-[9px] font-black uppercase tracking-[0.2em] opacity-50 italic text-white">
 <span id="days-left-text">---D LEFT</span>
+<span>/</span>
 <span id="percent-text" class="font-mono">0.000000%</span>
 </div>
 </div>
-<p id="garden-label" class="hide text-[9px] font-black uppercase tracking-[0.5em] opacity-30">365 DAYS OF GROWTH</p>
-</footer>
+<p id="garden-label" class="hide text-[8px] font-black uppercase tracking-[0.6em] opacity-20 text-white">PLANTING MEMORIES</p>
+</header>
 <!-- NAVIGATION -->
-<nav class="fixed bottom-8 glass-nav p-2 rounded-full flex gap-1 shadow-2xl z-[50]">
-<button onclick="switchView('chrono')" id="btn-chrono" class="px-10 py-4 rounded-full transition-all duration-500 bg-white text-black shadow-2xl">
+<nav class="fixed bottom-6 glass-nav p-1.5 rounded-full flex gap-1 shadow-2xl z-[50]">
+<button onclick="switchView('chrono')" id="btn-chrono" class="px-8 py-3 rounded-full transition-all duration-500 bg-white text-black shadow-xl">
 <i data-lucide="clock" class="w-5 h-5"></i>
 </button>
-<button onclick="switchView('garden')" id="btn-garden" class="px-10 py-4 rounded-full transition-all duration-500 text-white/30 hover:text-white">
+<button onclick="switchView('garden')" id="btn-garden" class="px-8 py-3 rounded-full transition-all duration-500 text-white/30 hover:text-white">
 <i data-lucide="flower" class="w-5 h-5"></i>
 </button>
 </nav>
 <!-- IMMERSIVE OVERLAY -->
 <div id="immersive-overlay" class="immersive-page px-10" onclick="closeOverlay()">
-<button onclick="closeOverlay()" class="absolute top-10 right-10 opacity-30 hover:opacity-100 transition-opacity"><i data-lucide="x" class="w-8 h-8"></i></button>
-<div id="overlay-content" class="w-full h-full flex flex-col items-center justify-center gap-16" onclick="event.stopPropagation()">
+<button onclick="closeOverlay()" class="absolute top-8 right-8 opacity-30 hover:opacity-100 transition-opacity text-white"><i data-lucide="x" class="w-7 h-7"></i></button>
+<div id="overlay-content" class="w-full h-full flex flex-col items-center justify-center gap-14" onclick="event.stopPropagation()">
 <!-- Dynamic Content -->
 </div>
 </div>
 <script>
+// --- RESTORED ASSETS ---
 const FLOWER_PATHS = [
 `<path d="M12 22c0-4 3-7 3-10S12 2 12 2s-3 7-3 10 3 6 3 10M7 12c0 2 2 4 5 4s5-2 5-4-2-4-5-4-5 2-5 4z"/>`,
 `<path d="M12 22V12M12 12c2-2 4-2 4-4s-2-2-4 0M12 12c-2-2-4-2-4-4s2-2 4 0"/>`,
 `<path d="M12 22s-1-4-4-6-4-4-4-4 4 1 6 4 6-4 6-4-1 2-4 4-4 6-4 6z"/>`,
 `<path d="M12 7c2.5-4.5 9-3 9 2s-6.5 6.5-9 11c-2.5-4.5-9-6-9-11s6.5-6.5 9-2z"/>`
 ];
-const QUOTES = [
+const ORIGINAL_QUOTES = [
 "Your time is limited, so don't waste it living someone else's life. — Steve Jobs",
 "It always seems impossible until it's done. — Nelson Mandela",
 "He who is brave is free. — Seneca",
+"The best way to predict the future is to create it. — Peter Drucker",
+"Do what you can, with what you have, where you are. — Roosevelt",
 "The soul becomes dyed with the color of its thoughts. — Marcus Aurelius",
+"Excellence is not an act, but a habit. — Aristotle",
 "Luck is preparation meeting opportunity. — Seneca"
 ];
 let user = localStorage.getItem('kchrono_user') || "";
@@ -128,15 +158,20 @@ function toggleThemePie() { document.getElementById('theme-pie').classList.toggl
 function applyGlobalTheme(color, isInit = false) {
 document.getElementById('main-body').style.backgroundColor = color;
 const isDark = isColorDark(color);
-const inkColor = isDark ? 'white' : '#1e3a8a';
-document.getElementById('main-body').style.color = inkColor;
-document.getElementById('main-palette-icon').style.color = inkColor;
+const ink = isDark ? 'white' : '#1e3a8a';
+document.getElementById('main-palette-icon').style.color = ink;
+document.getElementById('top-title').style.color = ink;
 if (!isInit) {
 if (activeView === 'chrono') { chronoBG = color; localStorage.setItem('kchrono_bg', color); }
 else { gardenBG = color; localStorage.setItem('kgarden_bg', color); }
 toggleThemePie();
 }
 if (activeView === 'garden') renderGarden(); else updateChronoGrid();
+}
+function isColorDark(color) {
+const c = color.substring(1); const rgb = parseInt(c, 16);
+const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = (rgb >> 0) & 0xff;
+return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 140;
 }
 function switchView(view) {
 activeView = view;
@@ -148,8 +183,14 @@ document.getElementById('garden-label').classList.toggle('hide', isChrono);
 applyGlobalTheme(isChrono ? chronoBG : gardenBG, true);
 document.getElementById('top-title').innerText = isChrono ? "2026" : `${user}'s Garden`;
 const btnC = document.getElementById('btn-chrono'), btnG = document.getElementById('btn-garden');
-if (isChrono) { btnC.className = "px-10 py-4 rounded-full bg-white text-black shadow-xl"; btnG.className = "px-10 py-4 rounded-full text-white/30"; }
-else { btnG.className = "px-10 py-4 rounded-full bg-blue-900 text-white shadow-xl"; btnC.className = "px-10 py-4 rounded-full text-white/10"; renderGarden(); }
+if (isChrono) {
+btnC.className = "px-8 py-3 rounded-full bg-white text-black shadow-xl";
+btnG.className = "px-8 py-3 rounded-full text-white/30";
+} else {
+btnG.className = "px-8 py-3 rounded-full bg-blue-600 text-white shadow-xl";
+btnC.className = "px-8 py-3 rounded-full text-white/10";
+renderGarden();
+}
 lucide.createIcons();
 }
 function saveIdentity() {
@@ -157,80 +198,67 @@ const v = document.getElementById('user-name-input').value;
 if (v) { user = v; localStorage.setItem('kchrono_user', v); document.getElementById('onboarding').classList.add('hide'); switchView('garden'); }
 }
 function updateChronoGrid() {
-const today = Math.floor((new Date() - new Date(new Date().getFullYear(), 0, 0)) / 86400000) + 1;
+const now = new Date();
+const today = Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000) + 1;
 const grid = document.getElementById('chrono-grid'); grid.innerHTML = '';
 for (let i = 1; i <= 365; i++) {
-const slot = document.createElement('div');
-slot.className = 'dot-slot';
 const dot = document.createElement('div');
 dot.className = `dot ${i < today ? 'dot-past' : (i === today ? 'dot-today' : 'dot-future')}`;
-slot.onclick = () => openWisdom(i, today);
-slot.appendChild(dot);
-grid.appendChild(slot);
+dot.onclick = () => openWisdom(i, today);
+grid.appendChild(dot);
 }
 }
 function renderGarden() {
 const grid = document.getElementById('garden-grid'); grid.innerHTML = '';
 for (let i = 1; i <= 365; i++) {
-const slot = document.createElement('div');
-slot.className = 'dot-slot';
+const dot = document.createElement('div');
+dot.className = 'dot';
 if (memories[i]) {
 const c = memories[i].vibe === 'good' ? '#22c55e' : (memories[i].vibe === 'bad' ? '#3b82f6' : '#f59e0b');
-slot.innerHTML = `<svg class="flower-ink" viewBox="0 0 24 24" style="stroke: ${c}">${FLOWER_PATHS[memories[i].pIdx]}</svg>`;
-} else {
-const dot = document.createElement('div');
-dot.className = 'dot garden-empty';
-slot.appendChild(dot);
-}
-slot.onclick = () => openJournal(i);
-grid.appendChild(slot);
+dot.innerHTML = `<svg class="flower-ink" viewBox="0 0 24 24" style="stroke: ${c}">${FLOWER_PATHS[memories[i].pIdx]}</svg>`;
+dot.style.backgroundColor = 'transparent';
+} else { dot.classList.add('garden-empty'); }
+dot.onclick = () => openJournal(i);
+grid.appendChild(dot);
 }
 }
 function openWisdom(i, today) {
 const ov = document.getElementById('immersive-overlay'); const content = document.getElementById('overlay-content');
 ov.style.background = "rgba(0,0,0,1)";
-document.getElementById('palette-btn').classList.add('hide');
-let msg = i < today ? "Nothing is behind, move forward." : (i === today ? QUOTES[i % QUOTES.length] : "Focus on the present now.");
-content.innerHTML = `<p class="text-3xl font-serif italic text-white leading-relaxed text-center max-w-[320px]">${msg}</p><div class="w-10 h-[1px] bg-red-500 opacity-50"></div>`;
+let msg = i < today ? "Nothing is behind, move forward." : (i === today ? ORIGINAL_QUOTES[i % ORIGINAL_QUOTES.length] : "Focus on the present now.");
+content.innerHTML = `<p class="text-3xl font-serif italic text-white leading-relaxed text-center max-w-[300px]">${msg}</p><div class="w-10 h-[1px] bg-red-500 opacity-50"></div>`;
 ov.classList.add('active');
 }
 function openJournal(day) {
 const ov = document.getElementById('immersive-overlay'); const content = document.getElementById('overlay-content');
-const entry = memories[day];
 const isDark = isColorDark(gardenBG);
 ov.style.background = gardenBG;
-document.getElementById('palette-btn').classList.add('hide');
-// IF MEMORY EXISTS, USE THE SENTIMENT COLOR FOR INK
-const ink = entry ? (entry.vibe === 'good' ? '#22c55e' : (entry.vibe === 'bad' ? '#3b82f6' : '#f59e0b')) : (isDark ? 'white' : '#1e3a8a');
+const entry = memories[day];
+const ink = isDark ? 'white' : '#1e3a8a';
 if (entry) {
 content.innerHTML = `
 <p class="text-[10px] font-mono opacity-40 tracking-[0.4em] uppercase" style="color: ${ink}">${entry.stamp}</p>
-<p class="text-3xl font-mono leading-relaxed text-center max-w-md" style="color: ${ink}">${entry.text}</p>
-<svg class="w-20 h-20" viewBox="0 0 24 24" style="stroke: ${ink}; fill: none; stroke-width: 1.2;">${FLOWER_PATHS[entry.pIdx]}</svg>
+<p class="text-2xl font-mono leading-relaxed text-center max-w-[300px]" style="color: ${ink}">${entry.text}</p>
+<svg class="w-16 h-16" viewBox="0 0 24 24" style="stroke: ${entry.vibe === 'good' ? '#22c55e' : (entry.vibe === 'bad' ? '#3b82f6' : '#f59e0b')}; fill: none; stroke-width: 1;">${FLOWER_PATHS[entry.pIdx]}</svg>
 `;
 } else {
-const dateStr = new Date(new Date().getFullYear(), 0, day).toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'long' });
+const ds = new Date(new Date().getFullYear(), 0, day).toLocaleDateString('en-US', { month: 'long', day: 'numeric', weekday: 'long' });
 content.innerHTML = `
-<p class="text-[10px] font-mono opacity-30 tracking-[0.4em] uppercase" style="color: ${isDark?'white':'#1e3a8a'}">${dateStr}</p>
-<textarea id="note-input" placeholder="Plant a memory..." class="paper-textarea h-64" style="color: ${isDark?'white':'#1e3a8a'}" autofocus></textarea>
-<div class="flex flex-col items-center gap-14">
-<div class="flex gap-12">
+<p class="text-[10px] font-mono opacity-40 tracking-[0.4em] uppercase" style="color: ${ink}">${ds}</p>
+<textarea id="note-input" placeholder="Plant a memory..." class="paper-textarea h-48" style="color: ${ink}" autofocus></textarea>
+<div class="flex flex-col items-center gap-12">
+<div class="flex gap-10">
 <button onclick="selectVibe('good', this)" class="sentiment-dot bg-green-500 selected"></button>
 <button onclick="selectVibe('neutral', this)" class="sentiment-dot bg-yellow-400"></button>
 <button onclick="selectVibe('bad', this)" class="sentiment-dot bg-blue-500"></button>
 </div>
-<button onclick="saveMemory(${day})" class="w-24 h-24 rounded-full bg-white text-black flex items-center justify-center shadow-2xl active:scale-95">
+<button onclick="saveMemory(${day})" class="w-20 h-20 rounded-full bg-white text-black flex items-center justify-center shadow-2xl active:scale-95">
 <i data-lucide="check" class="w-12 h-12"></i>
 </button>
 </div>
 `;
 }
 ov.classList.add('active'); lucide.createIcons();
-}
-function isColorDark(color) {
-const c = color.substring(1); const rgb = parseInt(c, 16);
-const r = (rgb >> 16) & 0xff, g = (rgb >> 8) & 0xff, b = (rgb >> 0) & 0xff;
-return (0.2126 * r + 0.7152 * g + 0.0722 * b) < 120;
 }
 function selectVibe(v, el) { activeSentiment = v; document.querySelectorAll('.sentiment-dot').forEach(d => d.classList.remove('selected')); el.classList.add('selected'); }
 async function saveMemory(day) {
@@ -240,7 +268,7 @@ memories[day] = { text: val, vibe: activeSentiment, stamp, pIdx: Math.floor(Math
 localStorage.setItem('kchrono_memories', JSON.stringify(memories));
 closeOverlay(); renderGarden();
 }
-function closeOverlay() { document.getElementById('immersive-overlay').classList.remove('active'); document.getElementById('palette-btn').classList.remove('hide'); }
+function closeOverlay() { document.getElementById('immersive-overlay').classList.remove('active'); }
 function updateTicker() {
 const now = new Date(); const total = 365;
 const start = new Date(now.getFullYear(), 0, 1).getTime(); const end = new Date(now.getFullYear() + 1, 0, 1).getTime();
