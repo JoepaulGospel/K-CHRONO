@@ -2,9 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>K-CHRONO | The Infrastructure</title>
-<!-- PWA / WIDGET META TAGS -->
+<!-- MOBILE OPTIMIZATION -->
 <link rel="manifest" href="manifest.json">
 <meta name="mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -26,44 +26,23 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: space-between;
-padding: 20px 0 40px 0; /* Optimized for mobile height */
+padding: 20px 0 40px 0;
 transition: background 0.4s ease;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; }
-/* THE GRID: 13 Columns is the Mobile Standard */
-.dot-grid {
-display: grid;
-grid-template-columns: repeat(13, 1fr);
-gap: 10px;
-justify-items: center;
-align-items: center;
-}
+.dot-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 10px; justify-items: center; align-items: center; }
 @media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 12px; } }
-.dot {
-width: 6px;
-height: 6px;
-border-radius: 50%;
-transition: all 0.3s ease;
-cursor: pointer;
-position: relative;
-display: flex;
-align-items: center;
-justify-content: center;
-}
-/* CHRONO VISUALS */
+.dot { width: 6px; height: 6px; border-radius: 50%; transition: all 0.3s ease; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
 .dot-past { background-color: var(--kb-red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
 .dot-today { background-color: var(--kb-blue) !important; box-shadow: 0 0 15px var(--kb-blue); animation: pulse 2s infinite; z-index: 10; }
 .dot-future { background-color: #1a1a1a; }
 .garden-empty { background-color: #333333; opacity: 0.5; }
-/* HAND-DRAWN FLOWERS */
 .flower-ink { width: 22px; height: 22px; fill: none; stroke-width: 2; stroke-linecap: round; position: absolute; }
 @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.6); opacity: 0.8; } }
-/* OVERLAYS */
 .immersive-page { position: fixed; inset: 0; z-index: 200; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.4s ease; }
 .immersive-page.active { opacity: 1; pointer-events: auto; }
 .paper-textarea { width: 100%; max-width: 400px; background: transparent; border: none; outline: none; font-family: 'JetBrains Mono', monospace; font-size: 1.4rem; text-align: center; resize: none; line-height: 1.7; color: white; }
-/* THEME PIE */
 .theme-pie { position: fixed; top: 80px; right: 20px; display: grid; grid-template-columns: 1fr; gap: 12px; opacity: 0; pointer-events: none; transition: all 0.4s ease; z-index: 150; }
 .theme-pie.active { opacity: 1; pointer-events: auto; transform: translateX(-5px); }
 .theme-dot { width: 40px; height: 40px; border-radius: 50%; border: 2px solid rgba(255,255,255,0.1); cursor: pointer; }
@@ -71,10 +50,13 @@ justify-content: center;
 .sentiment-dot { width: 34px; height: 34px; border-radius: 50%; border: 2px solid transparent; transition: 0.2s; cursor: pointer; }
 .sentiment-dot.selected { transform: scale(1.3); border-color: white; }
 .hide { display: none !important; }
+/* MOBILE INSTALL BUTTON */
+#mobile-install-btn { display: none; position: fixed; top: 20px; left: 20px; z-index: 1000; background: white; color: black; padding: 8px 16px; border-radius: 20px; font-size: 10px; font-weight: 800; letter-spacing: 0.1em; text-transform: uppercase; box-shadow: 0 4px 15px rgba(255,255,255,0.2); }
 </style>
 </head>
 <body id="main-body">
-<!-- THEME PIE -->
+<!-- NEW: MOBILE INSTALL BUTTON -->
+<button id="mobile-install-btn" onclick="triggerInstall()">Install App</button>
 <button onclick="toggleThemePie()" class="fixed top-6 right-6 z-[160] p-2 opacity-30 hover:opacity-100 transition-opacity">
 <i data-lucide="palette" id="main-palette-icon" class="w-7 h-7"></i>
 </button>
@@ -85,7 +67,6 @@ justify-content: center;
 <div onclick="applyGlobalTheme('#db2777')" class="theme-dot bg-pink-600"></div>
 <div onclick="applyGlobalTheme('#064e3b')" class="theme-dot bg-green-900"></div>
 </div>
-<!-- ONBOARDING -->
 <section id="onboarding" class="fixed inset-0 z-[300] bg-black flex items-center justify-center p-8 hide text-white text-center">
 <div class="max-w-xs w-full space-y-10">
 <h1 class="text-4xl font-serif italic">Who is planting these memories?</h1>
@@ -93,17 +74,14 @@ justify-content: center;
 <button onclick="saveIdentity()" class="bg-white text-black px-12 py-4 rounded-full font-black uppercase text-[10px] tracking-widest">Enter Garden</button>
 </div>
 </section>
-<!-- HEADER -->
 <header class="w-full text-center px-6">
 <h1 id="top-title" class="text-3xl font-serif italic tracking-tight transition-all duration-500 text-white">2026</h1>
 <p id="top-subtitle" class="text-[8px] font-black uppercase tracking-[0.5em] opacity-30 mt-2 text-white">K-CHRONO</p>
 </header>
-<!-- GRID AREA -->
 <div class="flex-1 flex items-center justify-center w-full px-5 overflow-hidden">
 <div id="chrono-view" class="w-full flex justify-center"><div id="chrono-grid" class="dot-grid"></div></div>
 <div id="garden-view" class="w-full hide flex justify-center"><div id="garden-grid" class="dot-grid"></div></div>
 </div>
-<!-- FOOTER -->
 <footer class="w-full flex flex-col items-center gap-10 pb-20">
 <div id="chrono-stats" class="flex flex-col items-center gap-2">
 <div class="flex gap-4 text-[9px] font-black uppercase tracking-[0.2em] opacity-50 italic text-white">
@@ -114,7 +92,6 @@ justify-content: center;
 </div>
 <p id="garden-label" class="hide text-[8px] font-black uppercase tracking-[0.6em] opacity-20 text-white">PLANTING MEMORIES</p>
 </footer>
-<!-- NAVIGATION -->
 <nav class="fixed bottom-6 glass-nav p-1.5 rounded-full flex gap-1 shadow-2xl z-[50]">
 <button onclick="switchView('chrono')" id="btn-chrono" class="px-8 py-3 rounded-full transition-all duration-500 bg-white text-black shadow-xl">
 <i data-lucide="clock" class="w-5 h-5"></i>
@@ -123,19 +100,37 @@ justify-content: center;
 <i data-lucide="flower" class="w-5 h-5"></i>
 </button>
 </nav>
-<!-- IMMERSIVE OVERLAY -->
 <div id="immersive-overlay" class="immersive-page px-10" onclick="closeOverlay()">
 <button onclick="closeOverlay()" class="absolute top-8 right-8 opacity-30 hover:opacity-100 transition-opacity text-white"><i data-lucide="x" class="w-7 h-7"></i></button>
 <div id="overlay-content" class="w-full h-full flex flex-col items-center justify-center gap-14" onclick="event.stopPropagation()">
-<!-- Dynamic Content -->
 </div>
 </div>
 <script>
-// --- PWA SERVICE WORKER REGISTRATION ---
+// --- MOBILE INSTALL LOGIC ---
+let deferredPrompt;
+window.addEventListener('beforeinstallprompt', (e) => {
+e.preventDefault();
+deferredPrompt = e;
+// Only show the button if on mobile
+if (window.innerWidth < 768) {
+document.getElementById('mobile-install-btn').style.display = 'block';
+}
+});
+function triggerInstall() {
+if (deferredPrompt) {
+deferredPrompt.prompt();
+deferredPrompt.userChoice.then((choiceResult) => {
+if (choiceResult.outcome === 'accepted') {
+document.getElementById('mobile-install-btn').style.display = 'none';
+}
+deferredPrompt = null;
+});
+}
+}
+// --- PWA REGISTRATION ---
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('sw.js');
 }
-// --- RESTORED ASSETS ---
 const FLOWER_PATHS = [
 `<path d="M12 22c0-4 3-7 3-10S12 2 12 2s-3 7-3 10 3 6 3 10M7 12c0 2 2 4 5 4s5-2 5-4-2-4-5-4-5 2-5 4z"/>`,
 `<path d="M12 22V12M12 12c2-2 4-2 4-4s-2-2-4 0M12 12c-2-2-4-2-4-4s2-2 4 0"/>`,
@@ -280,13 +275,12 @@ closeOverlay(); renderGarden();
 }
 function closeOverlay() { document.getElementById('immersive-overlay').classList.remove('active'); }
 function updateTicker() {
-const now = new Date(); const total = 365;
+const now = new Date();
 const start = new Date(now.getFullYear(), 0, 1).getTime(); const end = new Date(now.getFullYear() + 1, 0, 1).getTime();
 const percent = ((now.getTime() - start) / (end - start)) * 100;
 const daysLeft = 365 - Math.floor((now - new Date(now.getFullYear(), 0, 0)) / 86400000);
 document.getElementById('percent-text').innerText = percent.toFixed(6) + '%';
 document.getElementById('days-left-text').innerText = `${daysLeft}D LEFT`;
-// UPDATE LIVE BADGE
 if (navigator.setAppBadge) {
 navigator.setAppBadge(daysLeft);
 }
