@@ -1,24 +1,20 @@
 {
-"name": "K-CHRONO Infrastructure",
+"name": "K-CHRONO",
 "short_name": "K-CHRONO",
-"description": "Temporal Infrastructure & Memory Garden",
-"start_url": "/",
+"start_url": "index.html",
 "display": "standalone",
 "background_color": "#000000",
 "theme_color": "#000000",
-"orientation": "portrait",
 "icons": [
 {
-"src": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/timer.svg",
+"src": "https://img.icons8.com/ios-filled/192/FFFFFF/flower-main.png",
 "sizes": "192x192",
-"type": "image/svg+xml",
-"purpose": "any"
+"type": "image/png"
 },
 {
-"src": "https://raw.githubusercontent.com/lucide-icons/lucide/main/icons/flower-2.svg",
+"src": "https://img.icons8.com/ios-filled/512/FFFFFF/flower-main.png",
 "sizes": "512x512",
-"type": "image/svg+xml",
-"purpose": "maskable"
+"type": "image/png"
 }
 ]
 }
