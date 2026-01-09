@@ -5,12 +5,12 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>K-CHRONO | The Grid</title>
 <script src="https://cdn.tailwindcss.com"></script>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:italic&display=swap" rel="stylesheet">
+<script src="https://unpkg.com/lucide@latest"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=DM+Serif+Display:italic&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
 <style>
-/* PRESERVED COLORS & ADDED RED/BLUE LOGIC */
-:root { --kb-red: #ef4444; --kb-blue: #2563eb; }
+:root { --kb-red: #ef4444; --kb-blue: #2563eb; --paper: #e2e2e2; --ink: #2563eb; }
 body {
-background-color: #000000;
+background-color: #000000; /* Original Chrono BG */
 color: #FFFFFF;
 font-family: 'Inter', sans-serif;
 overflow: hidden;
@@ -19,74 +19,52 @@ align-items: center;
 justify-content: center;
 height: 100vh;
 -webkit-font-smoothing: antialiased;
+transition: background-color 0.5s ease;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
+.font-mono { font-family: 'JetBrains Mono', monospace; }
 /* PRESERVED GRID STRUCTURE */
-.dot-grid {
-display: grid;
-grid-template-columns: repeat(15, 1fr);
-gap: 10px;
-}
-@media (min-width: 768px) {
-.dot-grid {
-grid-template-columns: repeat(25, 1fr);
-gap: 12px;
-}
-}
+.dot-grid { display: grid; grid-template-columns: repeat(15, 1fr); gap: 10px; }
+@media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 12px; } }
 /* PRESERVED 6PX SIZE */
-.dot {
-width: 6px;
-height: 6px;
-border-radius: 50%;
-transition: all 0.4s ease;
-cursor: pointer;
-}
-/* UPDATED COLOR STATES */
+.dot { width: 6px; height: 6px; border-radius: 50%; transition: all 0.4s ease; cursor: pointer; }
+/* CHRONO STATES (EXACT) */
 .dot-past { background-color: var(--kb-red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.3); }
 .dot-future { background-color: #1a1a1a; }
-.dot-today {
-background-color: var(--kb-blue);
-box-shadow: 0 0 15px var(--kb-blue);
-animation: pulse 2s infinite;
-}
-@keyframes pulse {
-0%, 100% { transform: scale(1); opacity: 1; }
-50% { transform: scale(1.5); opacity: 0.7; }
-}
-/* MORPHY GLASS UI */
-.morphy-overlay {
-position: fixed;
-inset: 0;
-background: rgba(0,0,0,0.2);
-backdrop-filter: blur(40px);
--webkit-backdrop-filter: blur(40px);
-z-index: 100;
-display: flex;
-align-items: center;
-justify-content: center;
-opacity: 0;
-pointer-events: none;
-transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
+.dot-today { background-color: var(--kb-blue); box-shadow: 0 0 15px var(--kb-blue); animation: pulse 2s infinite; }
+/* GARDEN STATES */
+.garden-dot-empty { background-color: #c4c4c4; }
+.dot-planted { width: 12px; height: 12px; display: flex; items-center: center; justify-content: center; transform: translateY(-2px); }
+@keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.5); opacity: 0.7; } }
+/* MORPHY GLASS UI (EXACT) */
+.morphy-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.2); backdrop-filter: blur(40px); -webkit-backdrop-filter: blur(40px); z-index: 100; display: flex; align-items: center; justify-content: center; opacity: 0; pointer-events: none; transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .morphy-overlay.active { opacity: 1; pointer-events: auto; }
-.morphy-card {
-transform: scale(0.9);
-transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-}
+.morphy-card { transform: scale(0.9); transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
 .morphy-overlay.active .morphy-card { transform: scale(1); }
+/* GARDEN UI */
+.glass-pill { background: rgba(255, 255, 255, 0.4); backdrop-filter: blur(20px); border: 1px solid rgba(255,255,255,0.3); color: #2563eb; }
+.hide { display: none !important; }
+.garden-text { color: #2563eb; }
+.bg-paper { background-color: #e2e2e2; }
 </style>
 </head>
-<body class="p-6">
+<body id="main-body" class="p-6">
+<!-- ONBOARDING -->
+<section id="onboarding" class="fixed inset-0 z-[200] bg-[#e2e2e2] flex items-center justify-center p-8 hide">
+<div class="max-w-xs w-full space-y-8 text-center">
+<h1 class="text-4xl font-serif italic text-blue-600">Who is planting these memories?</h1>
+<input id="user-name-input" type="text" placeholder="Your Name" class="w-full bg-transparent border-b-2 border-blue-600 p-2 text-center text-xl outline-none font-bold text-blue-600">
+<button onclick="saveIdentity()" class="text-[10px] font-black uppercase tracking-widest bg-blue-600 text-white px-8 py-4 rounded-full">Enter the Garden</button>
+</div>
+</section>
+<!-- CONTAINER -->
 <div class="w-full max-w-sm md:max-w-xl flex flex-col items-center">
-<!-- HEADER -->
+<!-- CHRONO VIEW (EXACTLY YOUR CODE) -->
+<div id="chrono-view" class="flex flex-col items-center w-full">
 <header class="mb-12 text-center">
 <h1 id="year-display" class="text-3xl font-serif text-white tracking-widest">2026</h1>
 </header>
-<!-- THE GRID -->
-<div id="grid" class="dot-grid mb-16">
-<!-- 365 dots generated by JS -->
-</div>
-<!-- FOOTER STATS -->
+<div id="grid" class="dot-grid mb-16"></div>
 <footer class="w-full flex flex-col items-center gap-2">
 <div class="flex gap-4 text-[11px] font-black uppercase tracking-[0.3em] text-zinc-600 italic">
 <span id="days-left-text">---D LEFT</span>
@@ -96,15 +74,38 @@ transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
 <p class="text-[8px] font-black text-zinc-800 uppercase tracking-[0.6em] mt-4">K-CHRONO FROM KODEBLOCK</p>
 </footer>
 </div>
-<!-- POPUP COMPONENT -->
+<!-- GARDEN VIEW (THE JOURNAL) -->
+<div id="garden-view" class="flex flex-col items-center w-full hide">
+<header class="mb-12 text-center">
+<h1 id="garden-title" class="text-3xl font-serif text-blue-600 tracking-tight">Garden</h1>
+</header>
+<div id="garden-grid" class="dot-grid mb-16"></div>
+<footer class="w-full flex flex-col items-center gap-2">
+<p class="text-[9px] font-black text-blue-400 uppercase tracking-[0.4em]">362 days of growth</p>
+<p class="text-[8px] font-black text-blue-300 uppercase tracking-[0.6em] mt-4">PLANTING MEMORIES</p>
+</footer>
+</div>
+<!-- SWITCHER PILL -->
+<nav class="fixed bottom-10 glass-pill px-2 py-2 rounded-full flex gap-1 shadow-2xl z-50">
+<button onclick="switchView('chrono')" id="btn-chrono" class="px-6 py-2 rounded-full bg-white text-black shadow-sm transition-all">
+<i data-lucide="clock" class="w-4 h-4"></i>
+</button>
+<button onclick="switchView('garden')" id="btn-garden" class="px-6 py-2 rounded-full text-blue-600 transition-all">
+<i data-lucide="flower" class="w-4 h-4"></i>
+</button>
+</nav>
+</div>
+<!-- POPUP COMPONENT (EXACTLY YOUR POPUP) -->
 <div id="morphy-popup" class="morphy-overlay" onclick="closePopup()">
-<div class="morphy-card max-w-xs p-10 text-center">
+<div id="morphy-card-el" class="morphy-card max-w-sm w-full p-10 text-center rounded-[3rem]">
+<div id="popup-dynamic-content" class="space-y-6">
 <p id="quote-text" class="text-xl md:text-2xl font-serif italic text-white leading-relaxed tracking-tight"></p>
 <div id="quote-accent" class="mt-8 h-[1px] w-8 mx-auto opacity-40"></div>
 </div>
 </div>
+</div>
 <script>
-// Content from the Greats
+// --- PRESERVED QUOTES & DATA ---
 const GREATS_QUOTES = [
 "Your time is limited, so don't waste it living someone else's life. — Steve Jobs",
 "It always seems impossible until it's done. — Nelson Mandela",
@@ -115,6 +116,51 @@ const GREATS_QUOTES = [
 "Excellence is not an act, but a habit. — Aristotle",
 "Luck is what happens when preparation meets opportunity. — Seneca"
 ];
+let username = localStorage.getItem('kchrono_user');
+let memories = JSON.parse(localStorage.getItem('kchrono_memories')) || {};
+let activeView = 'chrono';
+function init() {
+lucide.createIcons();
+updateGrid();
+updateTicker();
+if (!username && activeView === 'garden') document.getElementById('onboarding').classList.remove('hide');
+}
+// --- NAVIGATION ---
+function switchView(view) {
+activeView = view;
+const body = document.getElementById('main-body');
+const chrono = document.getElementById('chrono-view');
+const garden = document.getElementById('garden-view');
+if (view === 'chrono') {
+body.style.backgroundColor = "#000000";
+chrono.classList.remove('hide');
+garden.classList.add('hide');
+document.getElementById('btn-chrono').className = "px-6 py-2 rounded-full bg-white text-black shadow-sm";
+document.getElementById('btn-garden').className = "px-6 py-2 rounded-full text-blue-600";
+} else {
+if (!username) {
+document.getElementById('onboarding').classList.remove('hide');
+}
+body.style.backgroundColor = "#e2e2e2";
+chrono.classList.add('hide');
+garden.classList.remove('hide');
+document.getElementById('garden-title').innerText = `${username || 'Your'}'s Garden`;
+document.getElementById('btn-chrono').className = "px-6 py-2 rounded-full text-zinc-400";
+document.getElementById('btn-garden').className = "px-6 py-2 rounded-full bg-blue-600 text-white shadow-sm";
+renderGardenGrid();
+}
+lucide.createIcons();
+}
+function saveIdentity() {
+const name = document.getElementById('user-name-input').value;
+if (name) {
+localStorage.setItem('kchrono_user', name);
+username = name;
+document.getElementById('onboarding').classList.add('hide');
+switchView('garden');
+}
+}
+// --- CHRONO LOGIC (EXACT) ---
 function getDayOfYear() {
 const now = new Date();
 const start = new Date(now.getFullYear(), 0, 0);
@@ -123,8 +169,7 @@ return Math.floor((now - start) / (1000 * 60 * 60 * 24));
 function updateGrid() {
 const now = new Date();
 const year = now.getFullYear();
-const isLeap = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0);
-const totalDays = isLeap ? 366 : 365;
+const totalDays = (year % 4 === 0 && year % 100 !== 0) || (year % 400 === 0) ? 366 : 365;
 const today = getDayOfYear();
 document.getElementById('year-display').innerText = year;
 const grid = document.getElementById('grid');
@@ -132,13 +177,9 @@ grid.innerHTML = '';
 for (let i = 1; i <= totalDays; i++) {
 const dot = document.createElement('div');
 dot.className = 'dot';
-if (i < today) {
-dot.classList.add('dot-past');
-} else if (i === today) {
-dot.classList.add('dot-today');
-} else {
-dot.classList.add('dot-future');
-}
+if (i < today) dot.classList.add('dot-past');
+else if (i === today) dot.classList.add('dot-today');
+else dot.classList.add('dot-future');
 dot.onclick = () => openPopup(i, today);
 grid.appendChild(dot);
 }
@@ -156,28 +197,97 @@ const daysLeft = totalDays - getDayOfYear();
 document.getElementById('percent-text').innerText = percent.toFixed(6) + '%';
 document.getElementById('days-left-text').innerText = `${daysLeft}D LEFT`;
 }
-function openPopup(index, today) {
+// --- GARDEN LOGIC ---
+function renderGardenGrid() {
+const grid = document.getElementById('garden-grid');
+grid.innerHTML = '';
+for (let i = 1; i <= 365; i++) {
+const dot = document.createElement('div');
+dot.className = 'dot';
+if (memories[i]) {
+dot.classList.add('dot-planted');
+const color = memories[i].vibe === 'good' ? 'text-green-500' : (memories[i].vibe === 'bad' ? 'text-blue-500' : 'text-yellow-500');
+dot.innerHTML = `<i data-lucide="flower" class="w-3 h-3 ${color}"></i>`;
+} else {
+dot.classList.add('garden-dot-empty');
+}
+dot.onclick = () => openJournal(i);
+grid.appendChild(dot);
+}
+lucide.createIcons();
+}
+function openJournal(dayIndex) {
 const popup = document.getElementById('morphy-popup');
+const card = document.getElementById('morphy-card-el');
+const content = document.getElementById('popup-dynamic-content');
+const entry = memories[dayIndex];
+card.style.backgroundColor = "#ffffff";
+if (entry) {
+content.innerHTML = `
+<div class="text-left space-y-4 font-mono text-blue-900">
+<p class="text-[9px] font-bold uppercase text-blue-300 tracking-widest">${entry.stamp}</p>
+<p class="text-lg leading-relaxed">${entry.text}</p>
+<button onclick="closePopup()" class="text-[9px] font-black uppercase tracking-widest text-blue-200">Close</button>
+</div>
+`;
+} else {
+const dateStr = new Date(new Date().getFullYear(), 0, dayIndex).toLocaleDateString('en-US', { month: 'long', day: 'numeric' });
+content.innerHTML = `
+<div class="text-left space-y-6">
+<p class="text-[10px] font-black uppercase tracking-widest text-blue-300">${dateStr}</p>
+<textarea id="note-input" placeholder="Plant a memory..." class="w-full h-32 bg-transparent text-xl font-mono outline-none resize-none text-blue-900"></textarea>
+<div class="flex justify-between items-center">
+<div class="flex gap-2">
+<button onclick="saveMemory(${dayIndex}, 'good')" class="w-8 h-8 rounded-full bg-green-500"></button>
+<button onclick="saveMemory(${dayIndex}, 'neutral')" class="w-8 h-8 rounded-full bg-yellow-400"></button>
+<button onclick="saveMemory(${dayIndex}, 'bad')" class="w-8 h-8 rounded-full bg-blue-500"></button>
+</div>
+</div>
+</div>
+`;
+}
+popup.classList.add('active');
+}
+async function saveMemory(day, vibe) {
+const text = document.getElementById('note-input').value;
+if(!text) return;
+const now = new Date();
+const stamp = `${now.toLocaleDateString('en-US', {weekday:'long'})} • ${now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}`;
+memories[day] = { text, vibe, stamp };
+localStorage.setItem('kchrono_memories', JSON.stringify(memories));
+closePopup();
+renderGardenGrid();
+}
+// --- POPUP LOGIC (EXACT) ---
+function openPopup(index, today) {
+if(activeView === 'garden') return;
+const popup = document.getElementById('morphy-popup');
+const card = document.getElementById('morphy-card-el');
 const text = document.getElementById('quote-text');
 const accent = document.getElementById('quote-accent');
+card.style.backgroundColor = "transparent";
+document.getElementById('popup-dynamic-content').innerHTML = `
+<p id="quote-text" class="text-xl md:text-2xl font-serif italic text-white leading-relaxed tracking-tight"></p>
+<div id="quote-accent" class="mt-8 h-[1px] w-8 mx-auto opacity-40"></div>
+`;
+const newText = document.getElementById('quote-text');
+const newAccent = document.getElementById('quote-accent');
 if (index < today) {
-text.innerText = "Nothing is behind, move forward.";
-accent.style.backgroundColor = "#ef4444";
+newText.innerText = "Nothing is behind, move forward.";
+newAccent.style.backgroundColor = "#ef4444";
 } else if (index === today) {
-text.innerText = GREATS_QUOTES[index % GREATS_QUOTES.length];
-accent.style.backgroundColor = "#2563eb";
+newText.innerText = GREATS_QUOTES[index % GREATS_QUOTES.length];
+newAccent.style.backgroundColor = "#2563eb";
 } else {
-text.innerText = "Focus on the present now, the future will work itself if you put in the work.";
-accent.style.backgroundColor = "#333";
+newText.innerText = "Focus on the present now, the future will work itself if you put in the work.";
+newAccent.style.backgroundColor = "#333";
 }
 popup.classList.add('active');
 }
 function closePopup() { document.getElementById('morphy-popup').classList.remove('active'); }
-// Run
-updateGrid();
-updateTicker();
+init();
 setInterval(updateTicker, 100);
-setInterval(updateGrid, 3600000); // Check for day change every hour
+setInterval(updateGrid, 3600000);
 </script>
 </body>
 </html>
