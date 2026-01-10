@@ -26,12 +26,13 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: space-between;
-padding: 20px 0 40px 0;
+padding: 20px 0 20px 0; /* Reduced top/bottom padding */
 transition: background 0.4s ease;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; }
-.dot-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 10px; justify-items: center; align-items: center; }
+/* ADJUSTED: Tighter gap on mobile to save vertical space */
+.dot-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 6px; justify-items: center; align-items: center; }
 @media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 12px; } }
 .dot { width: 6px; height: 6px; border-radius: 50%; transition: all 0.3s ease; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
 .dot-past { background-color: var(--kb-red); box-shadow: 0 0 8px rgba(239, 68, 68, 0.4); }
@@ -74,15 +75,17 @@ transition: background 0.4s ease;
 <button onclick="saveIdentity()" class="bg-white text-black px-12 py-4 rounded-full font-black uppercase text-[10px] tracking-widest">Enter Garden</button>
 </div>
 </section>
-<header class="w-full text-center px-6">
+<header class="w-full text-center px-6 pt-4">
 <h1 id="top-title" class="text-3xl font-serif italic tracking-tight transition-all duration-500 text-white">2026</h1>
 <p id="top-subtitle" class="text-[8px] font-black uppercase tracking-[0.5em] opacity-30 mt-2 text-white">K-CHRONO</p>
 </header>
-<div class="flex-1 flex items-center justify-center w-full px-5 overflow-hidden">
+<!-- Main content area -->
+<div class="flex-1 flex items-center justify-center w-full px-5 min-h-0 overflow-hidden">
 <div id="chrono-view" class="w-full flex justify-center"><div id="chrono-grid" class="dot-grid"></div></div>
 <div id="garden-view" class="w-full hide flex justify-center"><div id="garden-grid" class="dot-grid"></div></div>
 </div>
-<footer class="w-full flex flex-col items-center gap-10 pb-20">
+<!-- ADJUSTED: Footer padding and gaps to fit mobile screens -->
+<footer class="w-full flex flex-col items-center gap-4 pb-28 md:pb-20">
 <div id="chrono-stats" class="flex flex-col items-center gap-2">
 <div class="flex gap-4 text-[9px] font-black uppercase tracking-[0.2em] opacity-50 italic text-white">
 <span id="days-left-text">---D LEFT</span>
@@ -111,7 +114,6 @@ let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
 e.preventDefault();
 deferredPrompt = e;
-// Only show the button if on mobile
 if (window.innerWidth < 768) {
 document.getElementById('mobile-install-btn').style.display = 'block';
 }
