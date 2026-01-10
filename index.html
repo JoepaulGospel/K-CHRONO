@@ -26,12 +26,12 @@ display: flex;
 flex-direction: column;
 align-items: center;
 justify-content: space-between;
-padding: 20px 0 0 0; /* Removed bottom padding here to handle it in footer */
+padding: 20px 0 0 0;
 transition: background 0.4s ease;
 }
 .font-serif { font-family: 'DM Serif Display', serif; }
 .font-mono { font-family: 'JetBrains Mono', monospace; }
-/* DOT GRID: Restored to your original spacing */
+/* DOT GRID: Original Spacing Restored */
 .dot-grid { display: grid; grid-template-columns: repeat(13, 1fr); gap: 10px; justify-items: center; align-items: center; }
 @media (min-width: 768px) { .dot-grid { grid-template-columns: repeat(25, 1fr); gap: 12px; } }
 .dot { width: 6px; height: 6px; border-radius: 50%; transition: all 0.3s ease; cursor: pointer; position: relative; display: flex; align-items: center; justify-content: center; }
@@ -82,16 +82,16 @@ transition: background 0.4s ease;
 <div id="chrono-view" class="w-full flex justify-center"><div id="chrono-grid" class="dot-grid"></div></div>
 <div id="garden-view" class="w-full hide flex justify-center"><div id="garden-grid" class="dot-grid"></div></div>
 </div>
-<!-- ADJUSTED: Massive padding-bottom for mobile to force text above the nav pill -->
-<footer class="w-full flex flex-col items-center pb-32 md:pb-20">
-<div id="chrono-stats" class="flex flex-col items-center gap-2">
+<!-- FIXED: Using relative positioning and margin to pull stats UPWARDS on mobile -->
+<footer class="w-full flex flex-col items-center pb-10">
+<div id="chrono-stats" class="flex flex-col items-center gap-2 relative -top-16 md:top-0">
 <div class="flex gap-4 text-[9px] font-black uppercase tracking-[0.2em] opacity-50 italic text-white">
 <span id="days-left-text">---D LEFT</span>
 <span>/</span>
 <span id="percent-text" class="font-mono">0.000000%</span>
 </div>
 </div>
-<p id="garden-label" class="hide text-[8px] font-black uppercase tracking-[0.6em] opacity-20 text-white mt-4">PLANTING MEMORIES</p>
+<p id="garden-label" class="hide text-[8px] font-black uppercase tracking-[0.6em] opacity-20 text-white relative -top-12 md:top-0">PLANTING MEMORIES</p>
 </footer>
 <nav class="fixed bottom-6 glass-nav p-1.5 rounded-full flex gap-1 shadow-2xl z-[50]">
 <button onclick="switchView('chrono')" id="btn-chrono" class="px-8 py-3 rounded-full transition-all duration-500 bg-white text-black shadow-xl">
@@ -107,7 +107,6 @@ transition: background 0.4s ease;
 </div>
 </div>
 <script>
-// --- MOBILE INSTALL LOGIC ---
 let deferredPrompt;
 window.addEventListener('beforeinstallprompt', (e) => {
 e.preventDefault();
@@ -127,7 +126,6 @@ deferredPrompt = null;
 });
 }
 }
-// --- PWA REGISTRATION ---
 if ('serviceWorker' in navigator) {
 navigator.serviceWorker.register('sw.js');
 }
