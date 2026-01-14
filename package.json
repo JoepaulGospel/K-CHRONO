@@ -1,0 +1,23 @@
+{
+  "name": "k-chrono",
+  "version": "1.0.0",
+  "description": "K-CHRONO: The Infrastructure - A time tracking app with a garden/memory planting theme",
+  "main": "index.html",
+  "scripts": {
+    "dev": "http-server",
+    "build": "echo 'Static site - no build required'",
+    "deploy": "vercel deploy"
+  },
+  "keywords": [
+    "time-tracking",
+    "chronological",
+    "garden",
+    "memory",
+    "infrastructure"
+  ],
+  "author": "Joepaul Gospel",
+  "license": "MIT",
+  "devDependencies": {
+    "@vercel/analytics": "^1.4.0"
+  }
+}
